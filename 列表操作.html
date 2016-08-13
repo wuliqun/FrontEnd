@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>列表操作</title>
+	<style>
+		*{margin:0;padding:0;}
+		ul{list-style: none;}
+		.contain{width:814px;margin:20px auto;}
+		.th{border-top: 1px solid #e1e1e2;border-bottom: 1px solid #e1e1e2;background-color: #fafafa;}
+		.th div+div{border-left: 1px solid #e1e1e2;}
+		.th>div,li>div {float:left;height:28px;font:12px/28px Arial, Helvetica, sans-serif;color:#9b9999;text-indent: 10px;box-sizing:border-box;cursor:default;}
+		.th:after,li:after{content:'.';display: block;clear:both;height:0;visibility: hidden;}
+		.th,li{zoom:1;}
+		li:nth-child(odd){background-color: #fafafa;}
+		li:nth-child(even){background-color: #f5f5f7;}
+		li:hover{background-color: #ecedee;}
+		li.selected{background-color: #d5d5d5;}
+		.th>div,li.selected>div{color:#111;}
+		.serial{width:50px;text-align: right;padding-right: 10px;font-size: 10px;}
+		/*.lovetilte{width:58px;}*/
+		.love,.loved{width:58px;text-align: center;text-indent: 0;}
+		.love span,.loved span{display: inline-block;height:12px;width:14px;vertical-align: middle;background:url(love.png) no-repeat;cursor:pointer;}
+		.love span:hover{background-position: 0 -20px;}
+		.loved span{background-position:0 -40px;}
+		.title{width:264px;color:#111;}
+		.singer{width:186px;}
+		.album{width:170px;}
+		.duration{width:86px;}
+		.title,.album{white-space: nowrap;overflow: hidden;text-overflow:ellipsis;}
+		.menu{position:fixed;width:120px;display:none;border:1px solid #f0f0f0;}
+		.menu li{background-color:#fcfcfc;}
+		.menu li:hover{background-color: #e5e5e5;}
+		.menu a{display:inline-block;width:120px;height:30px;font:14px/30px Arial, Helvetica, sans-serif;text-decoration: none;color:#111;text-align: center;vertical-align: middle;}
+		
+	</style>
+</head>
+<body>
+<div class="contain">
+	<div class="th">
+		<div class="serial"></div>
+		<div class="love">喜爱<span id='love-all'></span></div>
+		<div class="title">音乐标题</div>
+		<div class="singer">歌手</div>
+		<div class="album">专辑</div>
+		<div class="duration">时长</div>
+	</div>
+	<ul id='song-list'>		
+	</ul>
+	<ul class="menu">
+		<li><a href="#">播放</a></li>
+		<li><a href="#">下一首播放</a></li>
+		<li class='order'><a href="#">以时长排序</a></li>
+		<li class='del'><a href="#">删除</a></li>
+	</ul>
+</div>
+</body>
+<script>
+	//event.js
+	function addEvent(a,b,c,d){
+	   if(!d) d=!1;
+	   if(a.attachEvent){
+	      a.attachEvent('on'+b,c);
+	   }else{
+	      a.addEventListener(b,c,d);
+	   }
+	}
+	function getTarget(e){
+	   var target = e.target?e.target:e.srcElement;
+	   //事件直接由ul触发,返回null
+	   if(target.nodeName === 'UL' || target.nodeName === 'OL'){
+	      return null;
+	   }
+	   //事件有可能由子元素触发,向上找parentNode直到找到tag
+	   while(target.nodeName !== 'LI'){
+	      target = target.parentNode;
+	   }
+	   return target;
+	}
+	function cancelBubble(e){
+	   if(e.stopPropagation){
+	      e.stopPropagation();
+	   }else{
+	      e.cancelBubble = true;
+	   }
+	}
+	function preventDft(e){
+	   if(e.preventDefault()){
+	      e.preventDefault()
+	   }else{
+	      e.returnValue = false;
+	   }
+	}
+	function fireEvent(e,type){
+		var ev = document.createEvent('Event');
+		if(e.dispatchEvent){
+			ev.initEvent(type,!0,!0);
+			e.dispatchEvent(ev);
+		}else{
+			ev.initEvent('on'+type,!0,!0);
+			e.fireEvent(ev);
+		}
+	}
+	HTMLCollection.prototype.indexOf = function (ele){
+		var result = -1;
+		for(var i=0;i<this.length;i++){
+			if(this.item(i) === ele){
+				result = i;
+				break;
+			}
+		}
+		return result;
+	}
+	if(document.all){
+	    document.onselectstart= function(){return false;}; //for ie
+	}else{
+	    document.onmousedown= function(){return false;};
+	    document.onmouseup= function(){return true;};
+	}
+</script>
+<script>
+window.onload = function(){
+	var tem = '<li>\
+					<div class="serial">${serial}</div>\
+					<div class="${love}">\
+						<span></span>\
+					</div>\
+					<div class="title">${song}</div>\
+					<div class="singer">${singer}</div>\
+					<div class="album">${album}</div>\
+					<div class="duration">${duration}</div>\
+				</li>';
+	var trackList = [{
+						song:'明天的你和我',
+						singer:'黄雅莉',
+						album:'傻逼不哭',
+						duration:193123,
+						love:0
+					},{
+						song:'猫和老鼠',
+						singer:'Tom',
+						album:'Tom and Jerry',
+						duration:203123,
+						love:0
+					},{
+						song:'一生所爱',
+						singer:'卢冠延',
+						album:'在世间',
+						duration:310263,
+						love:1
+					},{
+						song:'喜欢你',
+						singer:'beyond',
+						album:'海阔天空',
+						duration:221035,
+						love:0
+					}];
+	function totime(duration){
+		var date = new Date(duration);
+		var ret = date.getMinutes()<10?'0'+date.getMinutes():''+date.getMinutes();
+		ret += ':';
+		ret += date.getSeconds()<10?'0'+date.getSeconds():''+date.getSeconds();
+		return ret;
+	}
+	var htmlStr = '';
+	for(var i=0;i<trackList.length;i++){
+		var track = trackList[i];
+		htmlStr+=tem.replace(/\${([^}]+)}/g,function($0,$1){
+			switch($1){
+				case 'serial':
+					return i+1<10?'0'+(i+1):i+1+'';
+				case 'love':
+					return !track.love?'love':'loved';
+				case 'duration':
+					return totime(track.duration);
+				default:
+					return track[$1];
+			}
+		})
+	}
+	var trackUl = document.getElementById('song-list');
+	trackUl.innerHTML = htmlStr;
+	var trackLis = trackUl.getElementsByTagName('li');
+	var liIndex = 0;
+	var allLove = document.getElementById('love-all');
+	var menu = trackUl.nextElementSibling;
+	addEvent(trackUl,'click',function(e){
+		e = e || window.event;
+		menu.style.cssText = '';
+		var target = e.target?e.target:e.srcElement;
+		var targetLi = getTarget(e);
+		if(target.nodeName == 'SPAN'){			
+			var p = target.parentNode;
+			p.className = p.className == 'love'?'loved':'love';
+		}	
+		if(targetLi){
+			selectLi(targetLi,e);
+		}
+		cancelBubble(e);
+	});
+	function selectLi(target,e){
+		if(e.ctrlKey){
+				target.className = target.className=='selected'?'':'selected';
+				liIndex = trackLis.indexOf(target);
+			}else if(e.shiftKey){
+				var from = trackLis.indexOf(target);
+				var to = liIndex;
+				if(from > to){
+					to = from;
+					from = liIndex;
+				}
+				for( var i=0;i<trackLis.length;i++){
+					if(i>=from && i<=to){
+						trackLis[i].className = 'selected';
+					}else{
+						trackLis[i].className = '';
+					}
+				}
+				window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty(); 
+			}else{
+				for(var i=0;i<trackLis.length;i++){
+					trackLis[i].className = '';
+				}
+				target.className = 'selected';
+				liIndex = trackLis.indexOf(target);
+			}
+	}
+	addEvent(document,'keydown',function(e){
+		e = e || window.event;
+		if(e.keyCode === 65 && e.ctrlKey){
+			for(var i=0;i<trackLis.length;i++){
+				trackLis[i].className = 'selected';
+			}
+			preventDft(e);
+		}
+	});
+	addEvent(allLove,'click',function(e){
+		e = e||window.event;
+		menu.style.cssText = '';
+		var p = allLove.parentNode;
+		if(p.className === 'loved'){
+			p.className = 'love';
+			trackUl.innerHTML = trackUl.innerHTML.replace(
+				/(loved?)/g,'love');
+		}else{
+			p.className = 'loved';
+			trackUl.innerHTML = trackUl.innerHTML.replace(
+				/(loved?)/g,'loved');
+		}
+		cancelBubble(e);
+	});
+	addEvent(trackUl,'contextmenu',function(e){
+		e = e||window.event;
+		var targetLi = getTarget(e);
+		if(!!targetLi && targetLi.className !=='selected'){
+			selectLi(targetLi,e);			
+		}
+		menu.style.cssText='display:block;left:'+e.clientX+'px;top:'+e.clientY+'px';		
+		preventDft(e);
+	});
+	addEvent(document,'click',function(e){
+		menu.style.cssText = '';
+		for(var i=0;i<trackLis.length;i++){
+			trackLis[i].className = '';
+		}
+	});
+	addEvent(menu,'click',function(e){
+		e = e||window.event;
+		var target = getTarget(e);
+		if(target.className === 'del'){
+			for(var i=trackLis.length-1;i>=0;i--){
+				if(trackLis[i].className === 'selected'){
+					trackUl.removeChild(trackLis[i]);
+				}
+			}
+		}else if(target.className === 'order'){
+			console.dir(trackLis);
+			var liArr = [];
+			for(var i=0;i<trackLis.length;i++){
+				liArr.push(trackLis[i]);
+			}
+			liArr.sort(function(s1,s2){
+				var t1,t2;
+				s1.innerHTML.replace(/\d{2}:\d{2}/,function($0){
+					t1 = Number($0.replace(':',""));
+				});
+				s2.innerHTML.replace(/\d{2}:\d{2}/,function($0){
+					t2 = Number($0.replace(':',""));
+				});
+				return t1-t2;
+			});
+			trackUl.innerHTML = '';
+			for(var i=0;i<liArr.length;i++){
+				trackUl.appendChild(liArr[i]);
+			}
+		}		
+	});
+	
+}
+</script>
+</html>
+
+<!-- 列表操作部分的学习,对着网易云音乐实现了一些功能,写的很乱,先留着吧 -->
