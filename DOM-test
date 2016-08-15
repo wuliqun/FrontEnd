@@ -1,0 +1,49 @@
+function getElementsByClassName(element,names){
+	if(element.getElementsByClassName){
+		return element.getElementsByClassName(names);
+	}
+	console.log('defined');
+	var children = element.getElementsByTagName('*');
+	var iptClasses = names.split(/\s+/);
+	var result=[];
+	//不支持getElementsByClassName,通常也不支持indexOf
+	if(!Array.prototype.indexOf){
+		Array.prototype.indexOf = function(a){
+			for(var i=0;i<this.length;i++){
+				if(this[i] === a){
+					return i;
+				}
+			}
+			return -1;
+		}
+	}
+	//判断是否包含另一个数组		
+	Array.prototype.contain = function(a){
+		for(var i=0;i<a.length;i++){
+			if(this.indexOf(a[i]) < 0){
+				return !1;
+			}
+		}
+		return !0;
+	}
+	for(var i=0;i<children.length;i++){
+		var classes = children[i].className.split(/\s+/);
+		if(classes.contain(iptClasses)){
+			result.push(children[i]);
+		}
+	}	
+	return result;
+}
+function getCookies(){
+	var result={};
+	var cookieKvs = document.cookie.split(/;\s*/);
+	for(var i=0;i<cookieKvs.length;i++){
+		var keyVal = cookieKvs[i];
+		var index = keyVal.indexOf('=');
+		var name = keyVal.substring(0,index);
+		var value = keyVal.substring(index+1);
+		result[name] = value;
+	}
+	return result;
+}
+/* DOM编程艺术 单元测验 */
