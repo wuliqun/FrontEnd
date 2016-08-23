@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>CSS3 share icon</title>
+	<style type="text/css">
+		.share{
+			position: relative;
+			width:20px;
+			height:20px;
+			color:#555;
+			cursor:pointer;
+		}
+		.share:hover{
+			color:#000;
+		}
+		.share>div{
+			position: absolute;
+		}
+		.left{
+			top:5%;
+			left:0;
+			width:10%;
+			height:70%;
+			border:2px solid;
+			border-right-color: transparent;
+			border-bottom-color: transparent;
+		}
+		.bottom{
+			top:65%;
+			left:0;
+			width:70%;
+			height:10%;
+			border:2px solid;
+			border-top-color: transparent;
+			border-left-color: transparent;
+		}
+		.right{
+			top:7.5%;
+			left:70%;
+			width:0;
+			height:0;
+			border:solid transparent;
+			border-width:6px 8px;
+			border-left-color:inherit;
+		}
+		.inner{
+			top:25%;
+			left:20%;
+			width:50%;
+			height:50%;
+			border-top:5px solid;
+			border-left-width:0;
+			border-radius:100% 0 0 0/75% 0 0 0;
+		}
+	</style>
+</head>
+<body>
+	<div class='share'>
+		<div class='left'></div>
+		<div class='bottom'></div>
+		<div class='inner'></div>
+		<div class='right'></div>
+	</div>
+</body>
+</html>
