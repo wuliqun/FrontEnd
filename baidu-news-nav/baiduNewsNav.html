@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<link rel="shortcut icon" href="https://www.baidu.com/favicon.ico" type="image/x-icon">
+	<title>百度新闻导航栏效果</title>
+	<style>
+		.nav{
+			position: relative;
+			background-color: #01204f;
+			overflow: hidden;
+		}
+		.nav li{
+			position: relative;
+			z-index: 5;
+			float:left;
+			padding-right: 2px;
+			list-style: none;
+		}
+		.nav li.current a{
+			background-color: #cc0000;
+		}
+		.nav a{
+			display: block;
+			padding:0 10px;			
+			text-decoration: none;			
+			font:bold 16px/40px 'microsoft yahei';
+			color:#fff;
+		}
+		.nav i{
+			position: absolute;
+			top:0;
+			left:0;
+			z-index: 0;
+			height:40px;
+			background-color: #cc0000;
+		}
+	</style>
+</head>
+<body>
+	<ul class="nav" id='nav'>
+		<li class="current"><a href="#">首页</a></li>
+		<li><a href="#">百家</a></li>
+		<li><a href="#">财经</a></li>
+		<li><a href="#">娱乐</a></li>
+		<li><a href="#">奥运会</a></li>
+		<li><a href="#">互联网</a></li>
+		<li><a href="#">时尚</a></li>
+		<li><a href="#">汽车</a></li>
+		<li><a href="#">国内</a></li>
+		<li><a href="#">国际</a></li>
+		<li><a href="#">视频</a></li>
+		<li><a href="#">传媒</a></li>
+		<li><a href="#">个性推荐</a></li>
+		<li><a href="#">房产</a></li>	
+		<i></i>	
+	</ul>
+</body>
+<script type="text/javascript" src='../new/move.js'></script>
+<script type="text/javascript">
+	window.onload = function(){
+		var currentIndex = 0;
+		var ul = document.getElementById('nav');
+		var lis = ul.getElementsByTagName('li');
+		var pointer = ul.getElementsByTagName('i')[0];
+		pointer.style.left = lis[currentIndex].offsetLeft+'px';
+		pointer.style.width = lis[currentIndex].offsetWidth -2 + 'px';
+		for(var i = 0;i<lis.length;i++){
+			lis[i].onmouseover = function(i){
+				return function(){
+					if(i === currentIndex) return ;
+					move(pointer,{left:lis[i].offsetLeft,width:lis[i].offsetWidth-2},200);
+				}
+			}(i);
+			lis[i].onmouseout = function(){
+				move(pointer,{left:lis[currentIndex].offsetLeft,
+					width:lis[currentIndex].offsetWidth-2},200);
+			}
+			lis[i].onclick = function(i){
+				return function(){
+					lis[currentIndex].className = '';
+					currentIndex = i;
+					lis[currentIndex].className = 'current';
+				}
+			}(i);
+		}
+	}
+</script>
+</html>
