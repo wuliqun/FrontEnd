@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GRID布局,需启用Chrome的实验性网络平台功能</title>
+    <style>
+        *{margin:0;padding:0;}
+        html,body,.parent{
+            height:100%;
+        }
+        .parent{
+            display:grid;
+            grid-template-columns:auto 1fr;
+            grid-template-rows:auto 1fr auto;
+        }
+        .parent div{
+            border:1px solid #000;
+        }
+        .top{
+            grid-column:1/span 2;
+            grid-row:1;
+        }
+        .left{
+            grid-column:1;
+            grid-row:2;
+        }
+        .right{
+            grid-column:2;
+            grid-row:2;
+        }
+        .bottom{
+            grid-column:1/span 2;
+            grid-row:3;
+        }
+        
+    </style>
+</head>
+<body>
+   	<div class="parent">
+   		<div class="top">123456</div>
+        <div class="left">123333333</div>
+        <div class="right">0123</div>
+        <div class="bottom">33296548</div>
+   	</div>
+</body>
+</html>
