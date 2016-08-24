@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head >
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+ <select name="year" id="year">
+        <option value="0">--</option>
+        <option value="1999">1999</option>
+        <option value="2000">2000</option>
+        <option value="2001">2001</option>
+    </select>年
+    <select name="month" id="month">
+        <option value="0">--</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+    </select>月
+    <select name="date" id="date">
+        <option value="0">--</option>
+    </select>日
+</body>
+<script type="text/javascript">
+//绑定事件兼容函数,其他地方也可以重用,因此放在外部
+function addEvent(a,b,c,d){
+   if(!d) d=!1;
+   if(a.attachEvent){
+      a.attachEvent('on'+b,c);
+   }else{
+      a.addEventListener(b,c,d);
+   }
+}
+(function (){
+	var year = document.getElementById('year');
+	var month = document.getElementById('month');
+	var date = document.getElementById('date');
+	//设置日下拉选择器
+	var setDate = function(select,count){
+		var selectedIndex = select.selectedIndex;
+		select.innerHTML = '';
+		var frag = document.createDocumentFragment();
+		for(var i=0;i<=count;i++){
+			var op = document.createElement('option');
+			if(i === 0){
+				op.innerText = "--";
+			}else{
+				op.innerText = i;
+			}
+			op.value = i;
+			frag.appendChild(op);
+		}
+		date.appendChild(frag);
+		//恢复选中项
+		select.selectedIndex = selectedIndex>count?count:selectedIndex;
+	}
+	//选择器改选事件处理函数
+	var changeHandler = function (e){
+		e = e || window.event;
+		var target = e.target || e.srcElement;
+		switch(target){
+		case year:
+			if(year.value == 0){
+				month.selectedIndex = 0;
+				date.selectedIndex = 0;
+			}else{
+				if(month.value != 0){
+					var d = new Date(year.value,month.value,0);
+					var days = d.getDate();
+					setDate(date,days);
+				}
+			}
+			break;
+		case month:
+			if(year.value == 0){
+				month.selectedIndex = 0;
+			}else{
+				if(month.value == 0){
+					date.selectedIndex = 0;
+				}else{
+					var d = new Date(year.value,month.value,0);
+					var days = d.getDate();
+					setDate(date,days);
+				}
+			}
+			break;
+		case date:
+			if(month.value == 0){
+				date.selectedIndex = 0;
+			}
+			break;
+		}
+	}
+	//绑定事件
+	addEvent(year,'change',changeHandler,false);
+	addEvent(month,'change',changeHandler,false);
+	addEvent(date,'change',changeHandler,false);
+})()
+
+
+</script>
+</html>
